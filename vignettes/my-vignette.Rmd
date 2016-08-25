@@ -1,6 +1,6 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
+title: "Introduction to optband"
+author: "Tom Chen & Sam Tracy"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -9,50 +9,82 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+Classical simultaneous confidence bands for survival functions (Hall-Wellner, Equal Precision, etc) are derived from transformations of the convergence to a Weiner process with a strictly-increasing variance function These transformations are often motivated by factors such as:
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+- Time intervals for which the analyst prefers to be thinner or wider
+- Tractability of computing critical values of the asymptotic distribution in attaining the prescribed (nominal) coverage level
 
-## Vignette Info
+This package instead approaches the problem purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. While an exact solution cannot be obtained in closed form, `optband` provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions.
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+## Usage
 
-## Styles
+`optband` requires the `stats`, `survival`, `km.ci`, `taRifx`, and `LambertW` packages. Of primary use is the `opt.ci` function with method `opt.ci(survi, conf.level = 0.95, fun = "surv", tl = NA, tu = NA)`. 
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+`opt.ci` takes a `survfit` object with the desired $1-\alpha$ level, function of interest (either `"surv"` for the survival function or `"cumhaz"` for the cumulative-hazard function), and optional upper or lower bounds for data truncation.
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r, include=FALSE}
+library(stats)
+library(survival)
+library(km.ci)
+library(taRifx)
+library(LambertW)
+source('~/optband/R/package_functions.R')
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+## Example
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+First, let's generate some data and estimate the Kaplan-Meier curve:
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+```{r, echo=TRUE}
+N = 200
+x1 <- rweibull(N, 1, 1)
+x2 <- rweibull(N, 2, 1)
+d <- x1 < x2
+x <- pmin(x1,x2)
+mydata = data.frame(stop = x, event = d)
+S = survfit(Surv(x, d) ~ 1, type="kaplan-meier")
 
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
 ```
 
-Also a quote using `>`:
+Now we can estimate the optimized confidence bands and plot the curve:
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+```{r, fig.show='hold', fig.height=6, fig.width=6, echo=TRUE}
+opt_S <- opt.ci(S, conf.level = 0.95, fun = "surv", tl = NA, tu = NA)
+plot(opt_S, xlab="time", ylab="KM")
+
+```
+
+And we can do the same with the estimated cumultive-hazard function:
+
+```{r, fig.show='hold', fig.height=6, fig.width=6, echo=TRUE}
+opt_H <- opt.ci(S, conf.level = 0.95, fun = "cumhaz", tl = NA, tu = NA)
+plot(opt_H, fun="cumhaz", xlab="time", ylab="CH")
+
+```
+
+We can further play the procedure by adjusting the $\alpha$ level and truncating the data:
+
+```{r, fig.show='hold', fig.height=6, fig.width=6, echo=TRUE}
+opt_H <- opt.ci(S, conf.level = 0.90, fun = "cumhaz", tl = .1, tu = .9)
+plot(opt_H, fun="cumhaz", xlab="time", ylab="CH")
+
+```
+
+## References
+
+Kendall, W.S., Marin, J.M. and Robert, C.P. (2007). Confidence bands for Brownian motion and applications to Monte Carlo simulation. Statistics and Computing, 17(1), pp.1-10.
+
+Therneau T (2015). _A Package for Survival Analysis in S_. version
+2.38, <URL: http://CRAN.R-project.org/package=survival>.
+
+Terry M. Therneau and Patricia M. Grambsch (2000). Modeling Survival Data: Extending the Cox Model. Springer, New York. ISBN 0-387-98784-3.
+
+Ralf Strobl (2009). km.ci: Confidence intervals for the Kaplan-Meier estimator. R package version 0.5-2. https://CRAN.R-project.org/package=km.ci
+
+Ari B. Friedman (2014). taRifx: Collection of utility and convenience functions.. R package version 1.0.6. https://CRAN.R-project.org/package=taRifx
+
+Georg M. Goerg (2016). LambertW: An R package for Lambert W x F Random Variables. R package version 0.6.4.
+
+Georg M. Goerg (2011): Lambert W random variables - a new family of generalized skewed distributions with applications to risk estimation. Annals of Applied Statistics 3(5). 2197-2230.
+
+Georg M. Goerg (2014): The Lambert Way to Gaussianize heavy-tailed data with the inverse of Tukey’s h transformation as a special case. The Scientific World Journal.
