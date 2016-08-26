@@ -13,7 +13,6 @@ Depends:
     R (>= 2.13.0),
     stats
 Imports:
-    km.ci,
     LambertW,
     survival,
     taRifx
