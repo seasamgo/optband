@@ -1,12 +1,16 @@
 #' The psi function
 #'
 #' \code{psi} returns \deqn{\psi(x)=\sqrt{-W_{-1}(-x^2)}} using the Lambert W function
-#' (see \url{https://en.wikipedia.org/wiki/Lambert_W_function}).
+#' (see package LambertW).
 #'
 #' @param x a numeric value, possibly vectorized.
 #' @return A numeric value, possibly vectorized.
+#'
+#' @examples
+#' psi(.1)
+#'
 #' @keywords internal
-#' export
+#' @export
 
 psi <- function(x) sqrt(-suppressWarnings(LambertW::W(-x^2, branch = -1)))
 
@@ -18,6 +22,11 @@ psi <- function(x) sqrt(-suppressWarnings(LambertW::W(-x^2, branch = -1)))
 #' @param y a numeric 'height' vector.
 #'
 #' @return A numeric value.
+#'
+#' @examples
+#' x <- 1:10
+#' riemsum(x,x)
+#'
 #' @keywords internal
 #' @export
 
@@ -33,6 +42,13 @@ riemsum <- function(x, y) {
 #'
 #' @param survi a \code{survfit} object.
 #' @return A numeric vector.
+#'
+#' @examples
+#'
+#' library(survival)
+#' fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+#' cumhaz.var(fit)
+#'
 #' @keywords internal
 #' @export
 
@@ -41,15 +57,21 @@ cumhaz.var <- function(survi) {
     return(survi$n * cumsum(a))
 }
 
-#' Truncate times
+#' Evaluate whether times are in an interval
 #'
-#' \code{surv.range} truncates survival times by upper and lower bounds.
+#' \code{surv.range} evaluates \code{survfit} object survival times by upper and lower bounds.
 #'
 #' @param survi a \code{survfit} object.
 #' @param tl the lower bound.
 #' @param tu the upper bound.
 #'
-#' @return A \code{survfit} object with truncated survival times.
+#' @examples
+#' library(survival)
+#' fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+#' summary(fit)
+#' surv.range(fit, .1, .9)
+#'
+#' @return A boolean vector.
 #' @keywords internal
 #' @export
 
@@ -62,6 +84,11 @@ surv.range = function(survi, tl, tu) (survi$time >= tl & survi$time <= tu)
 #' @param survi a \code{survfit} object.
 #' @param tl the lower bound.
 #' @param tu the upper bound.
+#'
+#' @examples
+#' library(survival)
+#' fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+#' fit2 <- modify.surv.fun(fit, .1, .9)
 #'
 #' @return A truncated \code{survfit} object.
 #' @keywords internal
@@ -94,6 +121,14 @@ modify.surv.fun <- function(survi, tl, tu) {
 #' @param tu an upper bound for truncation.
 #'
 #' @details Produces an approximate solution based on local time arguments.
+#'
+#' @examples
+#' library(survival)
+#' # fit and plot a Kaplan-Meier curve
+#' fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+#' plot(fit)
+#' fit2 <- opt.ci(fit)
+#' plot(fit2)
 #'
 #' @return A \code{survfit} object with optimized confidence bands.
 #' @export

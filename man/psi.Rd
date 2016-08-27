@@ -14,8 +14,11 @@ A numeric value, possibly vectorized.
 }
 \description{
 \code{psi} returns \deqn{\psi(x)=\sqrt{-W_{-1}(-x^2)}} using the Lambert W function
-(see \url{https://en.wikipedia.org/wiki/Lambert_W_function}).
+(see package LambertW).
 }
-\keyword{export}
+\examples{
+psi(.1)
+
+}
 \keyword{internal}
 

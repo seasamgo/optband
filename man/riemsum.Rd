@@ -17,5 +17,10 @@ A numeric value.
 \description{
 \code{riemsum} returns a modified dot product described by two vectors.
 }
+\examples{
+x <- 1:10
+riemsum(x,x)
+
+}
 \keyword{internal}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/package_functions.R
 \name{surv.range}
 \alias{surv.range}
-\title{Truncate times}
+\title{Evaluate whether times are in an interval}
 \usage{
 surv.range(survi, tl, tu)
 }
@@ -14,10 +14,17 @@ surv.range(survi, tl, tu)
 \item{tu}{the upper bound.}
 }
 \value{
-A \code{survfit} object with truncated survival times.
+A boolean vector.
 }
 \description{
-\code{surv.range} truncates survival times by upper and lower bounds.
+\code{surv.range} evaluates \code{survfit} object survival times by upper and lower bounds.
+}
+\examples{
+library(survival)
+fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+summary(fit)
+surv.range(fit, .1, .9)
+
 }
 \keyword{internal}
 

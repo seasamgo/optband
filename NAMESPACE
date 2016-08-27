@@ -3,5 +3,6 @@
 export(cumhaz.var)
 export(modify.surv.fun)
 export(opt.ci)
+export(psi)
 export(riemsum)
 export(surv.range)

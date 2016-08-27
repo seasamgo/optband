@@ -16,5 +16,12 @@ A numeric vector.
 \code{cumhaz.var} estimates the cumulative-hazard function variance using Greenwood's
 formula for a \code{survfit} object containing estimated survival curves.
 }
+\examples{
+
+library(survival)
+fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+cumhaz.var(fit)
+
+}
 \keyword{internal}
 
