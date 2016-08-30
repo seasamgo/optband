@@ -19,5 +19,11 @@ A truncated \code{survfit} object.
 \description{
 \code{modify.surv.fun} truncates \code{survfit} by upper and lower bounds.
 }
+\examples{
+library(survival)
+fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+fit2 <- modify.surv.fun(fit, .1, .9)
+
+}
 \keyword{internal}
 

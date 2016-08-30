@@ -28,4 +28,13 @@ cumulative-hazard functions such that the area between is minimized.
 \details{
 Produces an approximate solution based on local time arguments.
 }
+\examples{
+library(survival)
+# fit and plot a Kaplan-Meier curve
+fit <- survfit(Surv(stop, event) ~ 1, data=bladder)
+plot(fit)
+fit2 <- opt.ci(fit)
+plot(fit2)
+
+}
 

@@ -94,8 +94,6 @@ Terry M. Therneau and Patricia M. Grambsch (2000). Modeling Survival Data: Exten
 
 Ralf Strobl (2009). km.ci: Confidence intervals for the Kaplan-Meier estimator. R package version 0.5-2. https://CRAN.R-project.org/package=km.ci
 
-Ari B. Friedman (2014). taRifx: Collection of utility and convenience functions.. R package version 1.0.6. https://CRAN.R-project.org/package=taRifx
-
 Georg M. Goerg (2016). LambertW: An R package for Lambert W x F Random Variables. R package version 0.6.4.
 
 Georg M. Goerg (2011): Lambert W random variables - a new family of generalized skewed distributions with applications to risk estimation. Annals of Applied Statistics 3(5). 2197-2230.
