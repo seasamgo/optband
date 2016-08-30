@@ -19,7 +19,7 @@ library(optband)
 
 ## README
 
-This package instead approaches simultaneous confidence bands for survival functions purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. `optband` imports `LambertW` and `utils` and provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions using via the `opt.ci` function.
+This package approaches simultaneous confidence bands for survival functions purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. `optband` imports `LambertW` and `utils` and provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions using via the `opt.ci` function.
 
 ## Installation
 
