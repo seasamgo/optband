@@ -3,7 +3,7 @@
 README
 ------
 
-This package instead approaches simultaneous confidence bands for survival functions purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. `optband` imports `LambertW` and `utils` and provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions using via the `opt.ci` function.
+This package approaches simultaneous confidence bands for survival functions purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. `optband` imports `LambertW` and `utils` and provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions.
 
 Installation
 ------------
@@ -12,7 +12,7 @@ Installation
 install.packages("devtools", repos="http://cran.rstudio.com/")
 #> 
 #> The downloaded binary packages are in
-#>  /var/folders/0g/wnxynt411mj4nn_wmt2kj5n40000gn/T//RtmpSSekTy/downloaded_packages
+#>  /var/folders/0g/wnxynt411mj4nn_wmt2kj5n40000gn/T//RtmphyQ6wH/downloaded_packages
 library(devtools)
 devtools::install_github("seasamgo/optband")
 library(optband)
