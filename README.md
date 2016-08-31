@@ -12,7 +12,7 @@ Installation
 install.packages("devtools", repos="http://cran.rstudio.com/")
 #> 
 #> The downloaded binary packages are in
-#>  /var/folders/0g/wnxynt411mj4nn_wmt2kj5n40000gn/T//RtmphyQ6wH/downloaded_packages
+#>  /var/folders/0g/wnxynt411mj4nn_wmt2kj5n40000gn/T//RtmpmsOBRP/downloaded_packages
 library(devtools)
 devtools::install_github("seasamgo/optband")
 library(optband)
