@@ -4,7 +4,8 @@
 \alias{opt.ci}
 \title{Confidence bands optimized by area}
 \usage{
-opt.ci(survi, conf.level = 0.95, fun = "surv", tl = NA, tu = NA)
+opt.ci(survi, conf.level = 0.95, fun = "surv", tl = NA, tu = NA,
+  samples = 1)
 }
 \arguments{
 \item{survi}{a \code{survfit} object.}
@@ -17,6 +18,8 @@ function, with "surv" as the default.}
 \item{tl}{a lower bound for truncation.}
 
 \item{tu}{an upper bound for truncation.}
+
+\item{samples}{the number of groups (1 or 2).}
 }
 \value{
 A \code{survfit} object with optimized confidence bands.

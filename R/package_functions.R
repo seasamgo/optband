@@ -108,6 +108,41 @@ modify.surv.fun <- function(survi, tl, tu) {
     return(survi)
 }
 
+#' Aggregate \code{survfit} object strata
+#'
+#' \code{func.sum} calculates the sum and aggregate time points of two
+#' cumulative-hazard functions or their variances, designed for use with
+#' a \code{survfit} object having two strata.
+#'
+#' @param f1 vector of cumulative-hazard estimates.
+#' @param f2 vector of cumulative-hazard estimates.
+#' @param f1time vector of survival times for f1.
+#' @param f2time vector of survival times for f2.
+#'
+#' @examples
+#' library(survival)
+#' res <- summary(survfit(Surv(stop, event) ~ rx, data=bladder))
+#' cols <- lapply(c(2:11) , function(x) res[x])
+#' tbl <- do.call(data.frame, cols)
+#' category = unique(tbl$strata)
+#' temptbl1 = tbl[tbl$strata == category[1],]; temptbl1$n = res$n[1]
+#' temptbl2 = tbl[tbl$strata == category[2],]; temptbl2$n = res$n[2]
+#' sigma1_2 = cumhaz.var(temptbl1)
+#' sigma2_2 = cumhaz.var(temptbl2)
+#' sigma2funcsum = func.sum(c(0, sigma1_2)/temptbl1$n[1], c(0, sigma2_2)/temptbl2$n[2],
+#'   c(0, temptbl1$time), c(0, temptbl2$time))
+#' sigma2funcsum
+#'
+#' @return A list of two numeric vectors.
+#' @keywords internal
+#' @export
+
+func.sum = function(f1, f2, f1time, f2time){
+  agg.time = sort(unique(c(f1time, f2time)))
+  mysum = f1[findInterval(agg.time, f1time)] + f2[findInterval(agg.time, f2time)]
+  return(list(mysum, agg.time))
+}
+
 #' Confidence bands optimized by area
 #'
 #' \code{opt.ci} obtains simultaneous confidence bands for the survival or
@@ -119,6 +154,7 @@ modify.surv.fun <- function(survi, tl, tu) {
 #' function, with "surv" as the default.
 #' @param tl a lower bound for truncation.
 #' @param tu an upper bound for truncation.
+#' @param samples the number of groups (1 or 2).
 #'
 #' @details Produces an approximate solution based on local time arguments.
 #'
@@ -133,70 +169,116 @@ modify.surv.fun <- function(survi, tl, tu) {
 #' @return A \code{survfit} object with optimized confidence bands.
 #' @export
 
-opt.ci <- function(survi, conf.level = 0.95, fun = "surv", tl = NA, tu = NA) {
-    ## Error catching
-    if (conf.level <= 0 || conf.level >= 1)
-        stop("Confidence level must be between 0 and 1")
-    if (data.class(survi) != "survfit")
-        stop("Survi must be a survival object")
+opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, samples=1 ){
+  ## Return estimated optimal confidence band for survival data
 
-    ## Default: no truncation
-    if (is.na(tl) & is.na(tu)) {
-        tl <- min(survi$time[survi$n.event > 0])
-        tu <- max(survi$time[survi$n.event > 0 & survi$n.risk > survi$n.event])
-    }
+  ## Error catching
+  if (conf.level <= 0 || conf.level >= 1)
+    stop("Confidence level must be between 0 and 1")
+  if (data.class(survi) != "survfit")
+    stop("Survi must be a survival object")
 
-    ## Constants
-    a = -0.4272
-    b = 0.2848
-    idx = surv.range(survi, tl, tu)
+  ## Default: no truncation
+  if(is.na(tl)&is.na(tu))
+  {
+    tl <- min(survi$time[survi$n.event>0])
+    tu <- max(survi$time[survi$n.event>0 & survi$n.risk>survi$n.event])
+  }
+
+  ## Constants
+  a = -0.4272; b = 0.2848
+  idx = range(survi$time, tl, tu)
+
+  ## Confidence bands
+  if (fun == "surv"){
+    ## Confidence band for estimated survival function
+
+    tot = sum(idx)
+    idx1 = 1:(tot-1)
+    idx2 = 2:tot
+    sigma_2 = cumhaz.var(survi)[idx]
+
+    survi <- modify.surv.fun(survi, tl, tu)
+    surv.mid = (survi$surv[idx1]+survi$surv[idx2])/2
+    sigma_2_u = tail(sigma_2, 1)
+
+    #Coefficients of empirical relationship
+    a1 = a*tail(surv.mid, 1)^2
+    b1 = (a + b*rev(sigma_2)[2]/sigma_2_u)*tail(surv.mid, 1) - b/sigma_2_u*riemsum(head(sigma_2, -2), head(surv.mid, -1))
+    c1 = 1 - conf.level
+
+    #Apply quadratic formula
+    kappa = (-b1 - sqrt(b1^2 - 4*a1*c1))/(2*a1)
+
+    s = sigma_2/sigma_2_u
+    c_t = psi(kappa*survi$surv*s)*sqrt(sigma_2/survi$n)
+    survi$lower = pmax(survi$surv*(1-c_t), 0)
+    survi$upper = pmin(survi$surv*(1+c_t), 1)
+
+  } else if (fun == "cumhaz" && samples == 1){
+    ## Confidence band for estimated cumulative-hazard function
+
+    sigma_2 = cumhaz.var(survi)[idx]
+    sigma_2_u = tail(sigma_2, n = 1)
+    s = sigma_2/sigma_2_u
+    L = s[1]
+    kappa = (-(a+b*L)-sqrt((a+b*L)^2-4*a*(1-conf.level)))/(2*a)  #Empirical relationship
+
+    ## Truncate
+    survi <- modify.surv.fun(survi, tl, tu)
+    c_t = psi(kappa*s)*sqrt(sigma_2/survi$n)
+
+    ## Transform
+    survi$lower = pmax(survi$surv*exp(-c_t), 0)
+    survi$upper = pmin(survi$surv*exp(c_t), 1)
+
+  } else if (fun == "cumhaz" && samples == 2){
+    ## Confidence band for estimated 2-sample cumulative-hazard function difference
+
+    #Aggregate all strata
+    res <- summary(survi)
+    cols <- lapply(c(2:11) , function(x) res[x])
+    tbl <- do.call(data.frame, cols)
+    category = unique(tbl$strata)
+
+    if (length(category) > 2)
+      stop("There must be only two strata")
 
     ## Confidence bands
-    if (fun == "surv") {
-        ## Confidence band for estimated survival function
 
-        tot = sum(idx)
-        idx1 = 1:(tot - 1)
-        idx2 = 2:tot
-        sigma_2 = cumhaz.var(survi)[idx]
+    temptbl1 = tbl[tbl$strata == category[1],]; temptbl1$n = survi$n[1]
+    temptbl2 = tbl[tbl$strata == category[2],]; temptbl2$n = survi$n[2]
+    sigma1_2 = cumhaz.var(temptbl1)
+    sigma2_2 = cumhaz.var(temptbl2)
 
-        survi <- modify.surv.fun(survi, tl, tu)
-        surv.mid = (survi$surv[idx1] + survi$surv[idx2])/2
-        sigma_2_u = utils::tail(sigma_2, 1)
+    sigma2funcsum = func.sum(c(0, sigma1_2)/temptbl1$n[1], c(0, sigma2_2)/temptbl2$n[2],
+                             c(0, temptbl1$time), c(0, temptbl2$time))
+    agg.time = sigma2funcsum[[2]]
+    se2_agg = sigma2funcsum[[1]][agg.time >= tl & agg.time <= tu]
+    survfuncration = func.sum(-log(c(1, temptbl1$surv)), log(c(1, temptbl2$surv)),
+                              c(0, temptbl1$time), c(0, temptbl2$time))
+    agg.time = survfuncration[[2]]
+    surv_ratio = exp(survfuncration[[1]][agg.time >= tl & agg.time <= tu])
 
-        # Coefficients of empirical relationship
-        a1 = a * utils::tail(surv.mid, 1)^2
-        b1 = (a + b * rev(sigma_2)[2]/sigma_2_u) * utils::tail(surv.mid, 1) - b/sigma_2_u *
-            riemsum(utils::head(sigma_2, -2), utils::head(surv.mid, -1))
-        c1 = 1 - conf.level
+    sigma_2_u = tail(se2_agg, n = 1)
+    s = se2_agg/sigma_2_u
+    L = s[1]
+    kappa = (-(a+b*L)-sqrt((a+b*L)^2-4*a*(1-conf.level)))/(2*a)  #Empirical relationship
 
-        # Apply quadratic formula
-        kappa = (-b1 - sqrt(b1^2 - 4 * a1 * c1))/(2 * a1)
+    c_t = psi(kappa*s)*sqrt(se2_agg)
 
-        s = sigma_2/sigma_2_u
-        c_t = psi(kappa * survi$surv * s) * sqrt(sigma_2/survi$n)
-        survi$lower = pmax(survi$surv * (1 - c_t), 0)
-        survi$upper = pmin(survi$surv * (1 + c_t), 1)
-
-    } else if (fun == "cumhaz") {
-        ## Confidence band for estimated cumulative-hazard function
-
-        sigma_2 = cumhaz.var(survi)[idx]
-        sigma_2_u = utils::tail(sigma_2, n = 1)
-        s = sigma_2/sigma_2_u
-        L = s[1]
-        kappa = (-(a + b * L) - sqrt((a + b * L)^2 - 4 * a * (1 - conf.level)))/(2 *
-            a)  #Empirical relationship
-
-        ## truncate
-        survi <- modify.surv.fun(survi, tl, tu)
-        c_t = psi(kappa * s) * sqrt(sigma_2/survi$n)
-
-        ## transform
-        survi$lower = pmax(survi$surv * exp(-c_t), 0)
-        survi$upper = pmin(survi$surv * exp(c_t), 1)
-
-    } else stop("Either 'surv' or 'cumhaz' required for function argument")
+    ## Transform
+    survi$lower = surv_ratio*exp(-c_t)
+    survi$upper = surv_ratio*exp(c_t)
+    survi$difference <- -log(surv_ratio)
+    survi$time <- agg.time[-c(length(agg.time))]
 
     return(survi)
+
+  } else if (fun == "surv" && samples == 2)
+      stop("2-sample bands are not available for the survival function")
+    else
+      stop("Either 'surv' or 'cumhaz' required for function argument")
+
+  return(survi)
 }
