@@ -50,5 +50,3 @@ dat <- bladder[bladder$enum==1,]
 S <- survival::survfit(Surv(stop, event) ~ 1, type = "kaplan-meier", data = dat)
 opt.S <- optband::opt.ci(S)
 ````
-
-Detailed instructions can be found [here](https://github.com/seasamgo/optband/blob/master/vignettes/optci.html).
