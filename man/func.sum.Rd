@@ -33,10 +33,8 @@ temptbl1 = tbl[tbl$strata == category[1],]; temptbl1$n = res$n[1]
 temptbl2 = tbl[tbl$strata == category[2],]; temptbl2$n = res$n[2]
 sigma1_2 = cumhaz.var(temptbl1)
 sigma2_2 = cumhaz.var(temptbl2)
-sigma2funcsum = func.sum(c(0, sigma1_2)/temptbl1$n[1], c(0, sigma2_2)/temptbl2$n[2],
+func.sum(c(0, sigma1_2)/temptbl1$n[1], c(0, sigma2_2)/temptbl2$n[2],
   c(0, temptbl1$time), c(0, temptbl2$time))
-sigma2funcsum
 
 }
 \keyword{internal}
-

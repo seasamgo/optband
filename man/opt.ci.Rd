@@ -40,4 +40,3 @@ fit2 <- opt.ci(fit)
 plot(fit2)
 
 }
-

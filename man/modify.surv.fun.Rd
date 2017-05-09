@@ -26,4 +26,3 @@ fit2 <- modify.surv.fun(fit, .1, .9)
 
 }
 \keyword{internal}
-

@@ -24,4 +24,3 @@ cumhaz.var(fit)
 
 }
 \keyword{internal}
-

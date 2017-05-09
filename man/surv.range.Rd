@@ -27,4 +27,3 @@ surv.range(fit, .1, .9)
 
 }
 \keyword{internal}
-

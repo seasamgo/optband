@@ -23,4 +23,3 @@ riemsum(x,x)
 
 }
 \keyword{internal}
-

@@ -7,6 +7,7 @@ library(km.ci)
 library(optband)
 
 ## ---- echo=TRUE----------------------------------------------------------
+set.seed(1990)
 N = 200
 x1 <- stats::rweibull(N, 1, 1)
 x2 <- stats::rweibull(N, 2, 1)
@@ -40,4 +41,15 @@ lines(S,col="grey", lwd=2, mark.time=F)
 
 legend("topright", c("KM", "optband", "epband", "hall-wellner"), 
        lwd=2, lty=1:4, col=color)
+
+## ---- fig.height=6, fig.width=6, echo=TRUE-------------------------------
+dat <- bladder[bladder$enum==1,]
+Hdif = survival::survfit(Surv(stop, event) ~ rx, type="kaplan-meier", data=dat)
+opt_Hdif <- optband::opt.ci(Hdif, fun="cumhaz", conf.level = 0.95, samples=2)
+
+plot(opt_Hdif$difference~opt_Hdif$time, xlab="t", ylim=c(-1.5,1),
+     main=expression(hat(Lambda)(t)[1]-hat(Lambda)(t)[2]), ylab="", col = "white")
+lines(opt_Hdif$difference~opt_Hdif$time, col = "grey", lty=1, lwd=2)
+lines(-log(opt_Hdif$upper)~opt_Hdif$time, col=4, lty=3, lwd=2)
+lines(-log(opt_Hdif$lower)~opt_Hdif$time, col=4, lty=3, lwd=2)
 

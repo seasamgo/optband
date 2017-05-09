@@ -129,9 +129,8 @@ modify.surv.fun <- function(survi, tl, tu) {
 #' temptbl2 = tbl[tbl$strata == category[2],]; temptbl2$n = res$n[2]
 #' sigma1_2 = cumhaz.var(temptbl1)
 #' sigma2_2 = cumhaz.var(temptbl2)
-#' sigma2funcsum = func.sum(c(0, sigma1_2)/temptbl1$n[1], c(0, sigma2_2)/temptbl2$n[2],
+#' func.sum(c(0, sigma1_2)/temptbl1$n[1], c(0, sigma2_2)/temptbl2$n[2],
 #'   c(0, temptbl1$time), c(0, temptbl2$time))
-#' sigma2funcsum
 #'
 #' @return A list of two numeric vectors.
 #' @keywords internal
@@ -187,7 +186,7 @@ opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, sample
 
   ## Constants
   a = -0.4272; b = 0.2848
-  idx = range(survi$time, tl, tu)
+  idx = surv.range(survi, tl, tu)
 
   ## Confidence bands
   if (fun == "surv"){
@@ -278,7 +277,7 @@ opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, sample
   } else if (fun == "surv" && samples == 2)
       stop("2-sample bands are not available for the survival function")
     else
-      stop("Either 'surv' or 'cumhaz' required for function argument")
+      stop("Either 'surv' or 'cumhaz' required for function argument, samples must be 1 or 2")
 
   return(survi)
 }
