@@ -46,10 +46,9 @@ Obtain confidence band for bladder cancer data set inherent to the `survival` pa
 library(survival)
 
 ## 1-sample case
-S <- survival::survfit(Surv(stop, event) ~ 1, type = "kaplan-meier", data = bladder)
+dat <- bladder[bladder$enum==1,]
+S <- survival::survfit(Surv(stop, event) ~ 1, type = "kaplan-meier", data = dat)
 opt.S <- optband::opt.ci(S)
-
-## 2-sample case
-S2 <- survival::survfit(Surv(stop, event) ~ rx, type = "kaplan-meier", data = bladder)
-opt.S <- optband::opt.ci(S2, samples = 2)
 ````
+
+Detailed instructions can be found [here](https://github.com/seasamgo/optband/blob/master/vignettes/optci.html).
