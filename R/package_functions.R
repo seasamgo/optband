@@ -199,11 +199,11 @@ opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, sample
 
     survi <- modify.surv.fun(survi, tl, tu)
     surv.mid = (survi$surv[idx1]+survi$surv[idx2])/2
-    sigma_2_u = tail(sigma_2, 1)
+    sigma_2_u = utils::tail(sigma_2, 1)
 
     #Coefficients of empirical relationship
-    a1 = a*tail(surv.mid, 1)^2
-    b1 = (a + b*rev(sigma_2)[2]/sigma_2_u)*tail(surv.mid, 1) - b/sigma_2_u*riemsum(head(sigma_2, -2), head(surv.mid, -1))
+    a1 = a*utils::tail(surv.mid, 1)^2
+    b1 = (a + b*rev(sigma_2)[2]/sigma_2_u)*utils::tail(surv.mid, 1) - b/sigma_2_u*riemsum(utils::head(sigma_2, -2), utils::head(surv.mid, -1))
     c1 = 1 - conf.level
 
     #Apply quadratic formula
@@ -218,7 +218,7 @@ opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, sample
     ## Confidence band for estimated cumulative-hazard function
 
     sigma_2 = cumhaz.var(survi)[idx]
-    sigma_2_u = tail(sigma_2, n = 1)
+    sigma_2_u = utils::tail(sigma_2, n = 1)
     s = sigma_2/sigma_2_u
     L = s[1]
     kappa = (-(a+b*L)-sqrt((a+b*L)^2-4*a*(1-conf.level)))/(2*a)  #Empirical relationship
@@ -259,7 +259,7 @@ opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, sample
     agg.time = survfuncration[[2]]
     surv_ratio = exp(survfuncration[[1]][agg.time >= tl & agg.time <= tu])
 
-    sigma_2_u = tail(se2_agg, n = 1)
+    sigma_2_u = utils::tail(se2_agg, n = 1)
     s = se2_agg/sigma_2_u
     L = s[1]
     kappa = (-(a+b*L)-sqrt((a+b*L)^2-4*a*(1-conf.level)))/(2*a)  #Empirical relationship
