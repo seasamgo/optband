@@ -18,12 +18,12 @@ library(km.ci)
 library(optband)
 ````
 
-Classical simultaneous confidence bands for survival functions (Hall-Wellner, Equal Precision, etc.) are derived from transformations of the convergence to a Weiner process with a strictly-increasing variance function These transformations are often motivated by factors such as:
+Classical simultaneous confidence bands for survival functions (Hall and Wellner, 1980; Nair, 1984) are derived from transformations of the convergence to a Weiner process with a strictly-increasing variance function These transformations are often motivated by factors such as:
 
 - Time intervals for which the analyst prefers to be thinner or wider
 - Tractability of computing critical values of the asymptotic distribution in attaining the prescribed (nominal) coverage level
 
-This package instead approaches the problem purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. While an exact solution cannot be obtained in closed form, `optband` provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions, building off of results specified by Kendall et al. (2007).
+This package instead approaches the problem purely from an optimization perspective: given a certain coverage level, obtain bands such that the area between is minimized. While an exact solution cannot be obtained in closed form, `optband` provides an approximate solution based off local time arguments for both the survival and cumulative-hazard functions, generalizing the results specified by Kendall et al. (2007).
 
 ## Usage
 
@@ -95,3 +95,11 @@ lines(opt_Hdif$difference~opt_Hdif$time, col = "grey", lty=1, lwd=2)
 lines(-log(opt_Hdif$upper)~opt_Hdif$time, col=4, lty=3, lwd=2)
 lines(-log(opt_Hdif$lower)~opt_Hdif$time, col=4, lty=3, lwd=2)
 ````
+
+## References
+
+Hall, W. and Wellner, J.(1980).Confidence bands for a survival curve from censored data. *Biometrika*, **67**(1):233-143.
+
+Kendall, W., Marin, J.,and Robert, C. (2007).Confidence bands for brownian motion and applications to monte carlo simulation. *Statistics and Computing*, **17**(1):1–10.
+
+Nair, V. (1984). Confidence bands for survival functions with censored data: a comparative study. *Technometrics*, **26**(3):265–275.
