@@ -4,8 +4,7 @@
 \alias{opt.ci}
 \title{Confidence bands optimized by area}
 \usage{
-opt.ci(survi, conf.level = 0.95, fun = "surv", tl = NA, tu = NA,
-  samples = 1)
+opt.ci(survi, conf.level = 0.95, fun = "surv", tl = NA, tu = NA, samples = 1)
 }
 \arguments{
 \item{survi}{a \code{survfit} object.}

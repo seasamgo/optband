@@ -168,7 +168,7 @@ func.sum = function(f1, f2, f1time, f2time){
 #' @return A \code{survfit} object with optimized confidence bands.
 #' @export
 
-opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, samples=1 ){
+opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, samples=1){
   ## Return estimated optimal confidence band for survival data
 
   ## Error catching
@@ -279,5 +279,5 @@ opt.ci = function(survi, conf.level=0.95, fun = "surv", tl = NA, tu = NA, sample
     else
       stop("Either 'surv' or 'cumhaz' required for function argument, samples must be 1 or 2")
 
-  return(survi)
+    return(survi)
 }
